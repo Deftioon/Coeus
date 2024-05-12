@@ -1,14 +1,10 @@
 import numpy as np
 import coeus.models.regression as regression
+import coeus.models.kmeans as kmeans
 
-# Generate Random Data
-X = np.sort(np.random.rand(100) * 10)
-Y = np.cos(X) + np.random.rand(100)
-
-# Create Regression Model
-model = regression.Regression([lambda x: np.cos(x)], "MSE")
-model.fit(X, Y)
-
-print(model)
-
-model.show(30, 0.1, "Regression", "X", "Y", True)
+# KMeans
+X = np.random.randn(1000, 2)
+kmeans_model = kmeans.KMeans(6, 100)
+kmeans_model.fit(X)
+print(kmeans_model)
+kmeans_model.show(save = True, custom_title = "KMeans 100")

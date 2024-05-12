@@ -64,7 +64,7 @@ Parameters: {self.params}
             plt.plot(self.fit_train, self.predict(self.fit_train), label = "Fit")
 
             if save:
-                plt.savefig("exports/regression_plot.png")
+                plt.savefig(f"exports/{custom_title}.png")
 
             plt.legend()
 
@@ -81,7 +81,7 @@ Parameters: {self.params}
             plt.legend()
 
             if save:
-                plt.savefig("exports/regression_forecast.png")
+                plt.savefig(f"exports/{custom_title}.png")
 
             plt.show()
             return
