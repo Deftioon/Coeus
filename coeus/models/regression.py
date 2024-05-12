@@ -16,7 +16,7 @@ class LinearRegression:
     def __str__(self):
         return f"""
 =============MODEL SUMMARY==============
-Regression Model:
+Linear Regression Model:
 Size: {self.paramNums}
 Error: {self.error}
 ===============DETAILS==================
