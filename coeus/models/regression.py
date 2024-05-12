@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-class Regression:
+class LinearRegression:
     def __init__(self, funcs: list, error: str):
         supported_funcs = ["MSE"]
         if error not in supported_funcs:
