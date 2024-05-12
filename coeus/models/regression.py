@@ -1,9 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-class LinearRegression:
+class Linear:
     def __init__(self, funcs: list, error: str):
-        supported_funcs = ["MSE"]
+        supported_funcs = ["MSE", "MAE"]
         if error not in supported_funcs:
             raise NotImplementedError(f"Error function {error} not supported. Supported functions are {supported_funcs}")
         
@@ -21,7 +21,6 @@ Size: {self.paramNums}
 Error: {self.error}
 ===============DETAILS==================
 Average Error: {self.average_error}
-Parameters: {self.params}
 =======================================
             """
     
@@ -36,6 +35,7 @@ Parameters: {self.params}
             self.params = np.linalg.inv(x_train.T @ x_train) @ x_train.T @ y
 
             self.average_error = np.mean((y - x_train @ self.params) ** 2)
+
     
     def predict(self, X: np.ndarray, bayes = False):
         if not bayes:
@@ -89,3 +89,6 @@ Parameters: {self.params}
 
             plt.show()
             return
+        
+class Logistic:
+    pass

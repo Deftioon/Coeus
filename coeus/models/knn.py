@@ -8,7 +8,14 @@ class KNN:
         self.y = None
 
     def __str__(self):
-        return f""""""
+        return f"""
+=============MODEL SUMMARY==============
+K-Nearest-Neighbors Model:
+Max Neighbors: {self.k}
+===============DETAILS==================
+Average Distance: {np.mean(np.linalg.norm(self.X[:, None] - self.y, axis=2))}
+=======================================
+"""
     
     def fit(self, X: np.ndarray, y: np.ndarray):
         self.X = X
