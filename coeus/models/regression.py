@@ -37,11 +37,15 @@ Parameters: {self.params}
 
             self.average_error = np.mean((y - x_train @ self.params) ** 2)
     
-    def predict(self, X: np.ndarray):
-        x_test = np.asarray([i(X) for i in self.funcs]).T
-        x_test = np.hstack((np.ones([X.shape[0],1], X.dtype), x_test))
+    def predict(self, X: np.ndarray, bayes = False):
+        if not bayes:
+            x_test = np.asarray([i(X) for i in self.funcs]).T
+            x_test = np.hstack((np.ones([X.shape[0],1], X.dtype), x_test))
 
-        return x_test @ self.params
+            return x_test @ self.params
+        
+        elif bayes:
+            pass
 
     def forecast(self, steps: int, increment = 1):
         self.forecast_train = np.arange(self.fit_train[-1], self.fit_train[-1] + steps * increment)
