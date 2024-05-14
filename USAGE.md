@@ -166,11 +166,47 @@ save: Toggle to save to exports/ or not
 """
 ```
 
-`show` displays a visualisation for the univariate linear regression, and can save the plot to the `exports` directory.
+`show` displays a visualisation for the univariate linear regression, and can save the plot to the `coeus/exports` directory.
 
 
 
 **Retrieving the Model**
+
+The `get_params` and `get_last_forecast` can retrieve the model parameters and the last forecasted data the model has cached.
+
+```py
+get_params() -> list
+```
+
+```py
+get_last_forecast() -> np.ndarray
+```
+
+
+
+**Exporting the Model**
+
+Coeus allows the user to export their model in a `.npy` format.
+
+```py
+import numpy as np
+import coeus.models.regression as regression
+
+model = regression.Linear([lambda x: x, lambda x: x**2], "MSE")
+
+x = np.sort(np.random.rand(100))
+y = 0.5 * x ** 2 + 0.1 * x + np.random.rand(100)
+
+model.fit(x, y)
+
+model.export()
+```
+
+This model export is exported to the `coeus/model_exports` directory.
+
+
+
+**Full Sample**
 
 Sample of Univariate Linear Regression in Coeus:
 
@@ -184,5 +220,37 @@ y = x**2 + np.random.rand(100)
 
 # Create Model
 model = regression.Linear()
+
+# Fit Model
+model.fit(x,y)
+
+# Print Model
+print(model)
+
+# Show Model
+model.show(10, 0.1, save = True)
+
+# Export Model
+model.export()
 ```
+
+
+
+### Logistic Regression
+
+TODO
+
+
+
+### K-Nearest-Neighbors
+
+
+
+### K-Means
+
+
+
+### Fully Connected Neural Networks
+
+
 
