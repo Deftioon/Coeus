@@ -48,7 +48,7 @@ Average Error: {self.average_error}
             pass
 
     def forecast(self, steps: int, increment = 1):
-        self.forecast_train = np.arange(self.fit_train[-1], self.fit_train[-1] + steps * increment)
+        self.forecast_train = np.arange(self.fit_train[-1], self.fit_train[-1] + steps * increment, increment)
         self.forecast_out = self.predict(self.forecast_train)
         return self.forecast_out
 
@@ -89,6 +89,9 @@ Average Error: {self.average_error}
 
             plt.show()
             return
+        
+    def export(self):
+        np.save("model_exports/params", self.params)
         
 class Logistic:
     pass
