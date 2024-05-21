@@ -19,10 +19,10 @@ def tanh(x):
     return np.tanh(x)
 
 def ddx_relu(x):
-    return np.where(x > 0, 1, 0)
+    return np.diag(np.where(x > 0, 1, 0))
 
 def ddx_sigmoid(x):
-    return sigmoid(x) * (1 - sigmoid(x))
+    return np.diag(sigmoid(x) * (1 - sigmoid(x)))
 
 # TODO: Implement Softmax Derivative
 # TODO: Fix Jacobian Activation
@@ -30,7 +30,7 @@ def ddx_softmax(x):
     pass
 
 def ddx_tanh(x):
-    return 1 - tanh(x) ** 2
+    return np.diag(1 - tanh(x) ** 2)
 
 def MSE(x, y):
     return np.mean((x - y) ** 2)
