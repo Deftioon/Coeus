@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
 if __name__ == "__main__":
     from exception import *
@@ -22,16 +23,34 @@ activations_der = {
         "tanh": functions.ddx_tanh
     }
 
+loss = {
+    "MSE": functions.MSE,
+    "cross_entropy": functions.cross_entropy
+}
+
+loss_der = {
+    "MSE": functions.ddx_MSE,
+    "cross_entropy": functions.ddx_cross_entropy
+}
+
 def get_act(activation):
     return activations[activation]
 
-def get_der(activation):
+def get_act_der(activation):
     return activations_der[activation]
+
+def get_loss(loss_func):
+    return loss[loss_func]
+
+def get_loss_der(loss_func):
+    return loss_der[loss_func]
 
 class Model:
     def __init__(self):
         self.layers = []
         self.layer_num = 0
+
+        self.loss_list = []
     
     def __str__(self):
         self.init()
@@ -50,15 +69,17 @@ Weight Sizes: {[layer.weights.shape for layer in self.layers[1:]]}
     
     def Input(self, dims):
         self.layers.append(Input(dims))
+        self.layers[-1].layer_num = self.layer_num
         self.layer_num += 1
 
     def Hidden(self, layer_size, activation):
         self.layers.append(Hidden(layer_size, activation))
+        self.layers[-1].layer_num = self.layer_num
         self.layer_num += 1
     
     def init(self):
         for i in range(1, self.layer_num):
-            self.layers[i].weights = np.random.rand(self.layers[i - 1].layer_size, self.layers[i].layer_size)
+            self.layers[i].weights = np.random.rand(self.layers[i - 1].layer_size, self.layers[i].layer_size)/10
     
     def forward(self, data):
         if data.shape[1] != self.layers[0].layer_size:
@@ -71,26 +92,88 @@ Weight Sizes: {[layer.weights.shape for layer in self.layers[1:]]}
         
         return self.layers[-1].a
 
+    def backward(self, data, target, lr, loss):
+        if data.shape[1] != self.layers[0].layer_size:
+            raise ShapeError(data.shape[1], self.layers[0].layer_size)
+        
+        for i in range(self.layer_num - 1, 0, -1):
+            if i == self.layer_num - 1:
+                self.layers[i].backward(lr, self.layers[i], self.layers[i-1], True, loss, target)
+            else:
+                self.layers[i].backward(lr, self.layers[i + 1], self.layers[i - 1], False, loss, target)
+
+    def update(self):
+        for i in range(1, self.layer_num):
+            self.layers[i].update()
+    
+    def calc_loss(self, target, loss):
+        return get_loss(loss)(self.layers[-1].a, target)
+    
+    def train(self, data, target, lr, loss, epochs):
+        for epoch in range(epochs):
+            epoch_loss_list = []
+            for x_train, y_train in zip(data, target):
+                self.forward(x_train)
+                self.backward(x_train, y_train, lr, loss)
+                self.update()
+
+                epoch_loss_list.append(self.calc_loss(y_train, loss))
+            mean_epoch_loss = np.mean(epoch_loss_list)
+            self.loss_list.append(mean_epoch_loss)
+            print(f"Epoch: {epoch} Loss: {mean_epoch_loss}")
+    
+    def plot_loss(self):
+        plt.plot(self.loss_list)
+        plt.xlabel("Epoch")
+        plt.ylabel("Loss")
+        plt.show()
+
+
 
 class Input:
     def __init__(self, dims):
         self.layer_size = dims
         self.activation = "linear"
         self.weights = None
+        self.layer_num = 0
         self.a = None
         self.z = None
+        self.dz = None
+        self.dw = None
+    
+    def __str__(self):
+        return str(self.a)
         
 class Hidden:
     def __init__(self, layer_size, activation):
         self.layer_size = layer_size
         self.activation = activation
         self.weights = None
+        self.new_weights = None
+        self.layer_num = 0
         self.a = None
         self.z = None
+        self.dz = None
+        self.dw = None
+    
+    def __str__(self):
+        return str(self.a)
+
+    def update(self):
+        self.weights = self.new_weights if self.new_weights is not None else self.weights
 
     def forward(self, layer):
         self.z = layer.a @ self.weights
         self.a = get_act(self.activation)(self.z)
 
-    def backward(self, layer):
-        pass
+    def backward(self, lr, next_layer, prev_layer, last, loss, target):
+        self.new_weights = self.weights
+        if last:
+            self.dz = get_loss_der(loss)(self.a, target) @ get_act_der(self.activation)(self.a)
+            self.dw = prev_layer.a.T @ self.dz
+            self.new_weights -= lr * self.dw
+        
+        else:
+            self.dz = next_layer.dz @ next_layer.weights.T @ get_act_der(self.activation)(self.a)
+            self.dw = prev_layer.a.T @ self.dz
+            self.new_weights -= lr * self.dw
