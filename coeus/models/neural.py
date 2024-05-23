@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from tqdm import tqdm
 
 if __name__ == "__main__":
     from exception import *
@@ -125,7 +126,7 @@ Weight Sizes: {[layer.weights.shape for layer in self.layers[1:]]}
 
                 epoch_data["val_loss"].append(self.calc_loss(y_val, loss))
             
-            for x_train, y_train in zip(data, target):
+            for x_train, y_train in tqdm(zip(data, target)):
                 self.forward(x_train)
                 self.backward(x_train, y_train, lr, loss)
                 self.update()
@@ -207,3 +208,31 @@ class Hidden:
             self.dz = next_layer.dz @ next_layer.weights.T @ get_act_der(self.activation)(self.a)
             self.dw = prev_layer.a.T @ self.dz
             self.new_weights -= lr * self.dw
+
+class Dropout:
+    def __init__(self, drop_rate):
+        self.drop_rate = drop_rate
+
+class Conv2D:
+    def __init__(self, kernel_size, step, activation):
+        self.kernel_size = kernel_size
+        self.step = step
+        self.activation = activation
+
+class Pooling:
+    def __init__(self, pool_size, stride):
+        self.pool_size = pool_size
+        self.stride = stride
+
+class Flatten:
+    def __init__(self):
+        pass
+
+class Recurrent:
+    def __init__(self, layer_size, activation):
+        self.layer_size = layer_size
+        self.activation = activation
+
+class Attention:
+    def __init__(self):
+        pass
