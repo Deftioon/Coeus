@@ -27,5 +27,5 @@ model.Hidden(2, "sigmoid")
 model.Hidden(1, "relu")
 
 model.init()
-model.train(x, y, x, y, 0.01, "cross_entropy", 0.5, 100)
+model.train(x, y, x, y, 0.01, "cross_entropy", 0.5, 1000)
 model.plot_loss()

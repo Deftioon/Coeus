@@ -145,11 +145,17 @@ Weight Sizes: {[layer.weights.shape for layer in self.layers[1:]]}
             
     
     def plot_loss(self):
+        plt.subplot(1, 2, 1)
         plt.plot(self.loss_list, label = "Training Loss")
-        plt.plot(self.val_loss_list, label = "Validation Loss")
         plt.xlabel("Epoch")
         plt.ylabel("Loss")
         plt.legend()
+
+        plt.subplot(1, 2, 2)
+        plt.plot(self.val_loss_list, label = "Validation Loss")
+        plt.xlabel("Epoch")
+        plt.legend()
+
         plt.show()
 
 
