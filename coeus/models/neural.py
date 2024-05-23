@@ -51,6 +51,7 @@ class Model:
         self.layer_num = 0
 
         self.loss_list = []
+        self.val_loss_list = []
     
     def __str__(self):
         self.init()
@@ -108,24 +109,47 @@ Weight Sizes: {[layer.weights.shape for layer in self.layers[1:]]}
     
     def calc_loss(self, target, loss):
         return get_loss(loss)(self.layers[-1].a, target)
-    
-    def train(self, data, target, lr, loss, epochs):
+
+    def train(self, data, target, val_x, val_y, lr, loss, aim, epochs):
+        print(data.shape[0])
         for epoch in range(epochs):
-            epoch_loss_list = []
+            epoch_data = {
+                "loss": [],
+                "val_loss": [],
+                "confusion": np.zeros((data.shape[2] + 1, data.shape[2] + 1))
+            }
+            for x_val, y_val in zip(val_x, val_y):
+                self.forward(x_val)
+                output = np.argmax(self.layers[-1].a)
+                targ = np.argmax(y_val)
+
+                epoch_data["val_loss"].append(self.calc_loss(y_val, loss))
+            
             for x_train, y_train in zip(data, target):
                 self.forward(x_train)
                 self.backward(x_train, y_train, lr, loss)
                 self.update()
 
-                epoch_loss_list.append(self.calc_loss(y_train, loss))
-            mean_epoch_loss = np.mean(epoch_loss_list)
+                output = np.argmax(self.layers[-1].a)
+                targ = np.argmax(y_train)
+
+                epoch_data["loss"].append(self.calc_loss(y_train, loss))
+                epoch_data["confusion"][np.argmax(y_train)][targ] += 1 if self.layers[-1].a[0][output] > aim else 0   
+
+            mean_epoch_loss = np.mean(epoch_data["loss"])
+            mean_val_loss = np.mean(epoch_data["val_loss"])
             self.loss_list.append(mean_epoch_loss)
-            print(f"Epoch: {epoch} Loss: {mean_epoch_loss}")
+            self.val_loss_list.append(mean_val_loss)
+
+            print(f"Epoch [{epoch}/{epochs}] Loss: {mean_epoch_loss: .2f} Validation Loss: {mean_val_loss: .2f}")
+            
     
     def plot_loss(self):
-        plt.plot(self.loss_list)
+        plt.plot(self.loss_list, label = "Training Loss")
+        plt.plot(self.val_loss_list, label = "Validation Loss")
         plt.xlabel("Epoch")
         plt.ylabel("Loss")
+        plt.legend()
         plt.show()
 
 

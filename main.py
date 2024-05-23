@@ -3,17 +3,29 @@ from coeus.models.neural import Model
 from coeus.models import functions
 from coeus.data.preprocessing import *
 
-x = np.sort(np.random.rand(100, 1, 1) / 10, axis = 0)
-x = normalize(x)
-y = x ** 2
+x = np.array([
+    np.array([[0,1]]),
+    np.array([[1,0]]),
+    np.array([[0,0]]),
+    np.array([[1,1]])
+])
 
-print(x)
+y = np.array([
+    np.array([[0]]),
+    np.array([[1]]),
+    np.array([[1]]),
+    np.array([[0]])
+])
+
+print(x.shape)
+print(y.shape)
 
 model = Model()
-model.Input(1)
+model.Input(2)
 model.Hidden(2, "relu")
+model.Hidden(2, "sigmoid")
 model.Hidden(1, "relu")
 
 model.init()
-model.train(x, y, 0.01, "MSE", 50)
+model.train(x, y, x, y, 0.01, "cross_entropy", 0.5, 100)
 model.plot_loss()
