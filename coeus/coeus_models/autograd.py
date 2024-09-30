@@ -21,24 +21,17 @@ class autograd:
     
     def backward(self, grad=1.0):
         self.grad += grad
-        for parent, local_grad in self.parents:
-            if parent.op == "@":
-                parent.backward(grad @ local_grad(self))
-            else:
-                parent.backward(grad * local_grad(self))
-    
-    def transpose(self):
-        return autograd(
-            self.data.transpose(),
-            parents=[(self, lambda v: v.transpose())],
-            op='transpose', device=self.device
-        )
+        for parent, back_func in self.parents:
+            parent.backward(grad * back_func(self))
     
     def __add__(self, other):
         other = other if isinstance(other, autograd) else autograd(other)
         return autograd(
             self.data + other.data,
             parents=[(self, lambda _: 1), (other, lambda _: 1)], op='+', device=self.device)
+
+    def __radd__(self, other):
+        return self.__add__(other)
     
     def __mul__(self, other):
         other = other if isinstance(other, autograd) else autograd(other)
@@ -49,16 +42,22 @@ class autograd:
                 (other, lambda v: self.data)],
             op='*', device=self.device)
     
+    def __rmul__(self, other):
+        return self.__mul__(other)
+    
     def __matmul__(self, other):
         other = other if isinstance(other, autograd) else autograd(other)
         return autograd(
             self.data @ other.data,
             parents=[
-                (self, lambda v: other.data.T),
-                (other, lambda v: self.data.T)
+                (self, lambda v: other.data),
+                (other, lambda v: self.data)
             ],
             op='@', device=self.device
         )
+    
+    def __rmatmul__(self, other):
+        return self.__matmul__(other)
     
     def __pow__(self, other):
         other = other if isinstance(other, autograd) else autograd(other)
@@ -69,6 +68,10 @@ class autograd:
                 (other, lambda v: self.data**other.data * np.log(self.data))],
             op='**', device=self.device)
     
+    def __rpow__(self, other):
+        return autograd(other) ** self
+    
+    
     def __neg__(self):
         return autograd(-self.data, parents=[(self, lambda _: -1)], op='-', device=self.device)
     
@@ -78,6 +81,9 @@ class autograd:
             self.data - other.data,
             parents=[(self, lambda _: 1), (other, lambda _: -1)], op='-', device=self.device)
     
+    def __rsub__(self, other):
+        return autograd(other) - self
+    
     def __truediv__(self, other):
         other = other if isinstance(other, autograd) else autograd(other)
         return autograd(
@@ -86,13 +92,9 @@ class autograd:
                 (self, lambda v: 1/other.data),
                 (other, lambda v: -self.data/other.data**2)],
             op='/', device=self.device)
+    
+    def __rtruediv__(self, other):
+        return autograd(other) / self
 
     def __repr__(self):
         return f"autograd(data={self.data}, grad={self.grad})"
-
-if __name__ == "__main__":
-    x = autograd([1,2,3], device="cpu")
-    y = autograd([0.5,0.5,0.5], device="gpu")
-    z = x ** y
-    z.backward()
-    print(x.grad)
