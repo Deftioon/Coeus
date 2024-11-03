@@ -1,2 +1,2 @@
 from .utils import linalg
-from .utils import autograd
+from .utils import new_autograd as autograd

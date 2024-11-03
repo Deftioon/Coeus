@@ -1,13 +1,15 @@
 import coeus.coeus as coeus
 
-tensor1 = coeus.linalg.tensor([1, 2, 3])
-print(tensor1)
+tensor1 = coeus.autograd.tensor([1, 2, 3, 4, 5], requires_grad=True)
+tensor2 = coeus.autograd.tensor([1, 2, 3, 4, 5], requires_grad=True)
 
-tensor2 = coeus.linalg.tensor([4, 5, 6])
-print(tensor2)
+result = tensor1 * tensor2
 
-tensor3 = tensor1 * tensor2
-print(tensor3)
+result.backward()
+print(tensor1.grad)
+print(tensor2.grad)
 
-tensor3.backward()
+result = tensor1 + tensor2
+result.backward()
+print(tensor1.grad)
 print(tensor2.grad)
