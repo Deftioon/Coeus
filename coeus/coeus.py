@@ -1,2 +1,3 @@
-from .utils import linalg
-from .utils import new_autograd as autograd
+from coeus.utils import linalg
+from coeus.utils import autograd
+from coeus.coeus_models import regression

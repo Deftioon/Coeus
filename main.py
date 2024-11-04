@@ -1,15 +1,8 @@
 import coeus.coeus as coeus
 
-tensor1 = coeus.autograd.tensor([1, 2, 3, 4, 5], requires_grad=True)
-tensor2 = coeus.autograd.tensor([1, 2, 3, 4, 5], requires_grad=True)
+X = coeus.linalg.tensor([1, 2, 3])
+y = coeus.linalg.tensor([1, 2, 3])
 
-result = tensor1 * tensor2
-
-result.backward()
-print(tensor1.grad)
-print(tensor2.grad)
-
-result = tensor1 + tensor2
-result.backward()
-print(tensor1.grad)
-print(tensor2.grad)
+model = coeus.regression.Linear([lambda x: x], "MSE")
+model.fit(X, y)
+print(model)
